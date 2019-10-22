@@ -1,6 +1,7 @@
 package com.diaspark;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,20 +9,24 @@ import java.util.List;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class ReadExcelFile {
+	Sheet datasetSheet;
+	static Workbook dataSetWorkbook;
 
+	//ArrayList for storing bloodGroup of employees
+	List<String> bloodGroup=new ArrayList<String>();
+
+	//ArrayList for storing names of employees
+	List<String> name=new ArrayList<String>();
+
+	//ArrayList for storing details of employees(comprises names and bloodGroup)
+	static List<String> details=new ArrayList<String>();
+	
 	public void readExcel(String filePath,String fileName,String sheetName)throws IOException{
-		
-		//ArrayList for storing names of employees
-		List<String> name=new ArrayList<String>();
-		
-		//ArrayList for storing bloodGroup of employees
-		List<String> bloodGroup=new ArrayList<String>();
-		
-		//ArrayList for storing details of employees(comprises names and bloodGroup)
-		List<String> details=new ArrayList<String>();
 		
 		//object of File class to open excel file
 		File file= new File(filePath+"\\"+fileName);
@@ -30,13 +35,13 @@ public class ReadExcelFile {
 		FileInputStream inputStream =new FileInputStream(file);
 		
 		
-		Workbook dataSetWorkbook= null;
+		dataSetWorkbook= null;
 		
 		//creating workBook 
 		dataSetWorkbook= new XSSFWorkbook(inputStream);
 		
 		//Read sheet inside the workbook by its name
-		Sheet datasetSheet= dataSetWorkbook.getSheet(sheetName);
+		datasetSheet= dataSetWorkbook.getSheet(sheetName);
 		
 		//find no. of rows in the excel file
 		int rowCount= datasetSheet.getLastRowNum()-datasetSheet.getFirstRowNum();
@@ -68,31 +73,76 @@ public class ReadExcelFile {
 		   System.out.println("Sorted Details are: "+details);
 	}
 	
-//	<dependencies>
-//	   <dependency>
-//	     <groupId>org.apache.poi</groupId>
-//	     <artifactId>poi</artifactId>
-//	     <version>3.9</version>
-//	     </dependency>
-//	     
-//	     <dependency>
-//	    <groupId>org.apache.poi</groupId>
-//	    <artifactId>poi-ooxml</artifactId>
-//	    <version>3.9</version>
-//	    </dependency>
-//	  </dependencies>
+	
+	public static void ConvertJavaToExcel(List<String> details)
+    {
+        try
+        {
+        	//file path specify
+            String excelPath = System.getProperty("user.dir")+"\\src\\main\\java\\com\\diaspark\\Exceldata.xlsx";
+           
+            FileOutputStream fileOutputStream = new FileOutputStream(new File(excelPath));
 
+            // Create Workbook instance holding file
+            XSSFWorkbook workbook = new XSSFWorkbook();
+
+            // Create a new sheet
+            XSSFSheet sheet = workbook.createSheet("New");
+            
+            int rownum = 0;
+            
+            System.out.println(details.size());
+            
+            for(int data=0;data<details.size();data++)
+            {
+                Row row = sheet.createRow(rownum++);
+                
+                int cellnum = 0;
+                
+                //split the data stored in arrayList as a single word
+                String[] words=details.get(data).split(":");
+                
+                //loop for storing data into cells ,run upto total no. of words
+                for(int columns=0;columns<words.length;columns++)
+                	
+                	row.createCell(cellnum++).setCellValue(words[columns]);
+                    
+                 System.out.println(rownum);
+                
+              
+            }
+            //Write workbook into the excel
+            workbook.write(fileOutputStream);
+            
+            //Close the workbook
+            fileOutputStream.close();
+            
+        } catch (IOException ie)
+           {
+            ie.printStackTrace();
+           }
+    }	
+	
+	
 	//Main Method
 	public static void main(String[] args)throws IOException {
-
+		
+		//object create
 		ReadExcelFile objExcelFile =new ReadExcelFile();
 
 		//Path of excel file
 		String filePath= System.getProperty("user.dir")+"\\src\\main\\java\\com\\diaspark";
 		
 		//call method readExcel for read the file 
-		objExcelFile.readExcel(filePath, "Exceldata.xlsx", "Employeedata");
+		objExcelFile.readExcel(filePath, "Exceldata.xlsx", "Newsheet");
 
+        System.out.println(details.size());
+
+        //object create
+		ReadExcelFile objExcelWFile =new ReadExcelFile();
+		
+		//call method ConvertJavaToExcel for write the file 
+		objExcelWFile.ConvertJavaToExcel(details);
 	}
 
 }
