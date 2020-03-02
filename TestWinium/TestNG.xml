@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+
+<suite name="Default suite" verbose="2">
+    <test name="Default test">
+        <classes>
+            <class name="packageWinium.TestNotepadClass"></class>
+          <!--  <class name="packageWinium.TestCalciClass"></class>-->
+        </classes>
+    </test>
+</suite>
